@@ -1,0 +1,19 @@
+{
+  "name": "pplx-proxy",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.6",
+    "express": "^4.19.2",
+    "proxy-agent": "^6.4.0",
+    "socket.io-client": "^4.7.5",
+    "socks-proxy-agent": "^8.0.4",
+    "uuid": "^9.0.1"
+  }
+}
