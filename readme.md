@@ -20,4 +20,4 @@
    - 使用 pm2 实现自动重载，提升服务可靠性
 
 ## 作者信息
-- 作者主页：[coker](https://linux.do/u/coker/summary)
+- 我的主页：[coker](https://linux.do/u/coker/summary)
