@@ -6,9 +6,6 @@ const { v4: uuidv4 } = require("uuid");
 const { ProxyAgent } = require("proxy-agent");
 const proxy =  process.env.PROXY || "";
 
-// 创建 SocksProxyAgent  
-
-
 const app = express();
 const port = process.env.PORT || 7860;
 
@@ -148,42 +145,25 @@ app.post("/v1/messages", (req, res) => {
                 var socket = io("wss://www.perplexity.ai/", opts);
 
                 socket.on("connect", function () {
-					let ask_json;
+					let ask_json={
+						"version": "2.9",
+						"source": "default",
+						"attachments": [],
+						"language": "en-US",
+						"timezone": "America/Los_Angeles",
+						"search_focus": "writing",
+						"frontend_uuid": uuidv4(),
+						"mode": "concise",
+						"is_related_query": false,
+						"is_default_related_query": false,
+						"visitor_id": uuidv4(),
+						"frontend_context_uuid": uuidv4(),
+						"prompt_source": "user",
+						"query_source": "home"
+					};
 					if (open_serch){
-						ask_json={
-                            "version": "2.9",
-                            "source": "default",
-			    			"sources":["web"],
-                            "attachments": [],
-                            "language": "en-US",
-                            "timezone": "America/Los_Angeles",
-                            "search_focus": "internet",
-                            "frontend_uuid": uuidv4(),
-                            "mode": "concise",
-                            "is_related_query": false,
-                            "is_default_related_query": false,
-                            "visitor_id": uuidv4(),
-                            "frontend_context_uuid": uuidv4(),
-                            "prompt_source": "user",
-                            "query_source": "home"
-                        }}
-					else{
-						ask_json={
-                            "version": "2.9",
-                            "source": "default",
-                            "attachments": [],
-                            "language": "en-US",
-                            "timezone": "America/Los_Angeles",
-                            "search_focus": "writing",
-                            "frontend_uuid": uuidv4(),
-                            "mode": "concise",
-                            "is_related_query": false,
-                            "is_default_related_query": false,
-                            "visitor_id": uuidv4(),
-                            "frontend_context_uuid": uuidv4(),
-                            "prompt_source": "user",
-                            "query_source": "home"
-                        }
+						ask_json["sources"]=["web"];
+						ask_json["search_focus"]="internet";
 					}
                     console.log(" > [Connected]");
                     socket
