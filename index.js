@@ -4,16 +4,15 @@ const { io } = require("socket.io-client");
 const { SocksProxyAgent } = require('socks-proxy-agent');
 const { v4: uuidv4 } = require("uuid");
 const { ProxyAgent } = require("proxy-agent");
-const proxy =  process.env.PROXY;
+const proxy =  process.env.PROXY || "";
 
 // 创建 SocksProxyAgent  
-const agent = new SocksProxyAgent(proxy);  
+
 
 const app = express();
 const port = process.env.PORT || 7860;
 
 var opts = {
-	agent: agent,
 	auth: {
 		jwt: "anonymous-ask-user",
 	},
@@ -31,6 +30,10 @@ var opts = {
 		Referer: "https://www.perplexity.ai/",
 	},
 };
+if (proxy) {
+	const agent = new SocksProxyAgent(proxy);  
+	opts.agent = agent;
+}
 
 
 function toMarkdownDetails(index,title, content, url) {
