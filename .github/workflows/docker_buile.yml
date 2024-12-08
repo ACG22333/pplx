@@ -30,7 +30,7 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}  
           DOCKERHUB_PAT: ${{ secrets.DOCKERHUB_PAT }}  
         run: |  
-          echo $DOCKERHUB_PAT | docker login -u $DOCKERHUB_USERNAME --password-stdin  
+          echo $DOCKERHUB_PAT | docker login --username $DOCKERHUB_USERNAME --password-stdin
           docker build -t $DOCKERHUB_USERNAME/pplx:latest .  
 
       # Step 5: 推送 Docker 映像到 Docker Hub  
