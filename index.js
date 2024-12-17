@@ -6,6 +6,9 @@ const { v4: uuidv4 } = require("uuid");
 const { ProxyAgent } = require("proxy-agent");
 const proxy =  process.env.PROXY || "";
 
+// 创建 SocksProxyAgent  
+
+
 const app = express();
 const port = process.env.PORT || 7860;
 
@@ -117,7 +120,23 @@ app.post("/v1/messages", (req, res) => {
 								return msg.content
 							}
 						}
-                        return "\n"+msg.role+":"+msg.content
+						if (typeof msg.content === "string") {
+							return "\n"+msg.role+":"+msg.content;
+						}
+						if (typeof msg.content === "object") {
+							//遍历，且检查是否有text属性
+							if (msg.content.length > 0) {
+								let text = "";
+								msg.content.forEach((item) => {
+									if (item.text) {
+										text += item.text;
+									}
+								}
+							);
+							return "\n"+msg.role+":"+text;
+							}
+						}
+                        return "\n"+msg.role+":"+"";
                     })
                     .join("\n\n");
 				console.log(previousMessages);
