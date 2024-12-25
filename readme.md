@@ -1,4 +1,5 @@
-# PPLX-Proxy 改进版
+#暂不可用 
+PPLX-Proxy 改进版
 
 基于 [pplx-proxy](https://github.com/Archeb/pplx-proxy) 项目的二次开发，增加了以下功能：
 
