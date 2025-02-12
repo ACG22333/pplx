@@ -104,6 +104,8 @@ app.post("/v1/messages", (req, res) => {
 				let open_serch=false;
 				let is_thinking=false;
 				let is_thinking_model=false;
+				let catche_num=0;
+				let catche_think="";
 				if (model.includes("search")) {
 					open_serch=true;
 				}
@@ -252,19 +254,19 @@ app.post("/v1/messages", (req, res) => {
 					console.dir(data, {depth: null});
 
 					let chunk="";
-					if (is_thinking_model){
+					if (is_thinking_model && !is_thinking){
 						chunk+="<think>"
 						is_thinking=true;
 					}
                     if(data.text){
                         var text = JSON.parse(data.text)
 						try{
-							if (text[-1].step_type=="final"){
+							if (text[-1].step_type=="FINAL"){
 								if (is_thinking){
 									chunk+="</think>"
 									is_thinking=false;
 								}
-								answer=text.content.answer.answer;
+								answer=text[-1].content.answer.answer;
 								if (cache_text){
 									let new_text=answer.slice(cache_text.length);
 									chunk+=new_text;
@@ -274,18 +276,7 @@ app.post("/v1/messages", (req, res) => {
 									cache_text=answer;
 								}
 							}
-                        	// var markdown_block = text.blocks[-1].markdown_block;
-							// if (markdown_block){
-							// 	chunk+=markdown_block.chunks[-1];
-							// } 
-							// var reasoning_plan_block=text.blocks[-1].reasoning_plan_block;
-							// if (reasoning_plan_block){
-							// 	chunk+=reasoning_plan_block.chunks[-1].goals[0].description;
-							// 	if (reasoning_plan_block.chunks[-1].goals.length>1){
-							// 		is_thinking=false;
-							// 		chunk+="</think>"
-							// 	}
-							// }
+
 						}catch(e){
 							console.log(e);
 							console.log(text);
@@ -299,6 +290,35 @@ app.post("/v1/messages", (req, res) => {
                             res.write(createEvent("content_block_delta", chunkJSON));
                         }
                     }
+					if (is_thinking && data.reasoning_plan && data.reasoning_plan.goals && data.reasoning_plan.goals.length > 1){
+						let chunk="";
+						goals_num=data.reasoning_plan.goals.length-1;
+						if (goals_num==catche_num){
+							if (catche_think!=goals[goals_num].description){
+								chunk+=goals[goals_num].description.slice(catche_think.length);
+								catche_think=goals[goals_num].description;
+							}
+						}
+						if (goals_num>catche_num){
+							if (goals[catche_num].description != catche_think){
+								chunk+=goals[catche_num].description.slice(catche_think.length);
+								catche_think=goals[catche_num].description;
+							}
+							catche_num=goals_num;
+							catche_think=goals[goals_num].description;
+							chunk+=catche_think;
+						}
+						if (chunk){
+							chunkJSON = JSON.stringify({
+								type: "content_block_delta",
+								index: 0,
+								delta: { type: "text_delta", text: chunk },
+							});
+							res.write(createEvent("content_block_delta", chunkJSON));
+						}
+						
+					
+					}
                 });
                 socket.on("disconnect", function () {
                     console.log(" > [Disconnected]");
