@@ -201,7 +201,15 @@ app.post("/v1/messages", (req, res) => {
 					if (is_thinking_model){
 						ask_json["model_preference"]="r1"
 					}
-					
+					if (is_thinking_model && !is_thinking){
+						let chunk="<think>\n";
+						chunkJSON = JSON.stringify({
+							type: "content_block_delta",
+							index: 0,
+							delta: { type: "text_delta", text: chunk },
+						});
+						res.write(createEvent("content_block_delta", chunkJSON));
+					}
                     console.log(" > [Connected]");
                     socket
                         .emitWithAck("perplexity_ask", previousMessages, ask_json)
@@ -254,19 +262,15 @@ app.post("/v1/messages", (req, res) => {
 					console.dir(data, {depth: null});
 
 					let chunk="";
-					if (is_thinking_model && !is_thinking){
-						chunk+="<think>"
-						is_thinking=true;
-					}
                     if(data.text){
                         var text = JSON.parse(data.text)
 						try{
 							if (text && text[text.length - 1].step_type=="FINAL"){
 								if (is_thinking){
-									chunk+="</think>"
+									chunk+="\n</think>"
 									is_thinking=false;
 								}
-								answer=text[text.length - 1].content.answer.answer;
+								answer=JSON.parse(text[text.length - 1].content.answer).answer;
 								if (cache_text){
 									let new_text=answer.slice(cache_text.length);
 									chunk+=new_text;
@@ -291,31 +295,35 @@ app.post("/v1/messages", (req, res) => {
                         }
                     }
 					if (is_thinking && data.reasoning_plan && data.reasoning_plan.goals && data.reasoning_plan.goals.length > 1){
-						let chunk="";
-						let goals_num=data.reasoning_plan.goals.length-1;
-						let goals=data.reasoning_plan.goals;
-						if (goals_num==catche_num){
-							if (catche_think!=goals[goals_num].description){
-								chunk+=goals[goals_num].description.slice(catche_think.length);
-								catche_think=goals[goals_num].description;
+						try{
+							let chunk="";
+							let goals_num=data.reasoning_plan.goals.length-1;
+							let goals=data.reasoning_plan.goals;
+							if (goals_num==catche_num){
+								if (catche_think!=goals[goals_num].description){
+									chunk+=goals[goals_num].description.slice(catche_think.length);
+									catche_think=goals[goals_num].description;
+								}
 							}
-						}
-						if (goals_num>catche_num){
-							if (goals[catche_num].description != catche_think){
-								chunk+=goals[catche_num].description.slice(catche_think.length);
-								catche_think=goals[catche_num].description;
+							if (goals_num>catche_num){
+								if (goals[catche_num].description != catche_think){
+									chunk+=goals[catche_num].description.slice(catche_think.length);
+									catche_think=goals[catche_num].description;
+								}
+								catche_num=goals_num;
+								catche_think="\n"+goals[goals_num].description;
+								chunk+=catche_think;
 							}
-							catche_num=goals_num;
-							catche_think=goals[goals_num].description;
-							chunk+=catche_think;
-						}
-						if (chunk){
-							chunkJSON = JSON.stringify({
-								type: "content_block_delta",
-								index: 0,
-								delta: { type: "text_delta", text: chunk },
-							});
-							res.write(createEvent("content_block_delta", chunkJSON));
+							if (chunk){
+								chunkJSON = JSON.stringify({
+									type: "content_block_delta",
+									index: 0,
+									delta: { type: "text_delta", text: chunk },
+								});
+								res.write(createEvent("content_block_delta", chunkJSON));
+							}
+						}catch(e){
+							console.log(e);
 						}
 						
 					
