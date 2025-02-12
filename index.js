@@ -104,7 +104,7 @@ app.post("/v1/messages", (req, res) => {
 				let open_serch=false;
 				let is_thinking=false;
 				let is_thinking_model=false;
-				let catche_num=0;
+				let catche_num=1;
 				let catche_think="";
 				if (model.includes("search")) {
 					open_serch=true;
@@ -261,7 +261,7 @@ app.post("/v1/messages", (req, res) => {
                     if(data.text){
                         var text = JSON.parse(data.text)
 						try{
-							if (text[-1].step_type=="FINAL"){
+							if (text && text[text.length - 1].step_type=="FINAL"){
 								if (is_thinking){
 									chunk+="</think>"
 									is_thinking=false;
@@ -292,7 +292,7 @@ app.post("/v1/messages", (req, res) => {
                     }
 					if (is_thinking && data.reasoning_plan && data.reasoning_plan.goals && data.reasoning_plan.goals.length > 1){
 						let chunk="";
-						goals_num=data.reasoning_plan.goals.length-1;
+						let goals_num=data.reasoning_plan.goals.length-1;
 						if (goals_num==catche_num){
 							if (catche_think!=goals[goals_num].description){
 								chunk+=goals[goals_num].description.slice(catche_think.length);
