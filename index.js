@@ -102,8 +102,12 @@ app.post("/v1/messages", (req, res) => {
 			} else if (jsonBody.stream == true) {
 				let model=jsonBody.model;
 				let open_serch=false;
+				let is_thinking=false;
 				if (model.includes("search")) {
 					open_serch=true;
+				}
+				if (model.includes("deepseek-r1")) {
+					is_thinking=true;
 				}
 				if (jsonBody.system) {
 					jsonBody.messages.unshift({ role: "system", content: jsonBody.system });
@@ -164,26 +168,37 @@ app.post("/v1/messages", (req, res) => {
                 var socket = io("wss://www.perplexity.ai/", opts);
 
                 socket.on("connect", function () {
-					let ask_json={
-						"version": "2.9",
-						"source": "default",
-						"attachments": [],
-						"language": "en-US",
-						"timezone": "America/Los_Angeles",
-						"search_focus": "writing",
-						"frontend_uuid": uuidv4(),
-						"mode": "concise",
-						"is_related_query": false,
-						"is_default_related_query": false,
-						"visitor_id": uuidv4(),
-						"frontend_context_uuid": uuidv4(),
-						"prompt_source": "user",
-						"query_source": "home"
-					};
+					let ask_json={"version":"2.18",
+						"source":"default",
+						"attachments":[],
+						"language":"en-US",
+						"timezone":"America/Los_Angeles",
+						"search_focus":"writing",
+						"sources":[],
+						"search_recency_filter":null,
+						"frontend_uuid":uuidv4(),
+						"mode":"copilot",
+						"is_related_query":false,
+						"is_sponsored":false,
+						"visitor_id":uuidv4(),
+						"user_nextauth_id":uuidv4(),
+						"frontend_context_uuid":uuidv4(),
+						"prompt_source":"user",
+						"query_source":"home",
+						"is_incognito":true,
+						"use_schematized_api":true,
+						"send_back_text_in_streaming_api":false,
+						"supported_block_use_cases":["media_items","knowledge_cards","inline_place_cards","place_widgets"],
+						"client_coordinates":null,
+						"is_nav_suggestions_disabled":false};
 					if (open_serch){
 						ask_json["sources"]=["web"];
 						ask_json["search_focus"]="internet";
 					}
+					if (is_thinking){
+						ask_json["model_preference"]="r1"
+					}
+					
                     console.log(" > [Connected]");
                     socket
                         .emitWithAck("perplexity_ask", previousMessages, ask_json)
@@ -233,9 +248,30 @@ app.post("/v1/messages", (req, res) => {
                     console.log(`> [got ${event}]`);
                 });
                 socket.on("query_progress", (data) => {
+					let chunk="";
+					if (is_thinking){
+						chunk+="<think>"
+						is_thinking=false;
+					}
                     if(data.text){
                         var text = JSON.parse(data.text)
-                        var chunk = text.chunks[text.chunks.length - 1];
+						try{
+                        	var markdown_block = text.blocks[-1].markdown_block;
+							if (markdown_block){
+								chunk+=markdown_block.chunks[-1];
+							} 
+							var reasoning_plan_block=text.blocks[-1].reasoning_plan_block;
+							if (reasoning_plan_block){
+								chunk+=reasoning_plan_block.chunks[-1].goals[0].description;
+								if (reasoning_plan_block.chunks[-1].goals.length>1){
+									is_thinking=false;
+									chunk+="</think>"
+								}
+							}
+						}catch(e){
+							console.log(e);
+							console.log(text);
+						}
                         if(chunk){
                             chunkJSON = JSON.stringify({
                                 type: "content_block_delta",
