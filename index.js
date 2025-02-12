@@ -187,7 +187,7 @@ app.post("/v1/messages", (req, res) => {
 						"query_source":"home",
 						"is_incognito":true,
 						"use_schematized_api":true,
-						"send_back_text_in_streaming_api":false,
+						"send_back_text_in_streaming_api":true,
 						"supported_block_use_cases":["media_items","knowledge_cards","inline_place_cards","place_widgets"],
 						"client_coordinates":null,
 						"is_nav_suggestions_disabled":false};
@@ -249,7 +249,7 @@ app.post("/v1/messages", (req, res) => {
                 });
                 socket.on("query_progress", (data) => {
 					console.log(data);
-					
+
 					let chunk="";
 					if (is_thinking){
 						chunk+="<think>"
