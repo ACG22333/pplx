@@ -263,6 +263,9 @@ app.post("/v1/messages", (req, res) => {
 								let new_text=answer.slice(cache_text.length);
 								chunk+=new_text;
 								cache_text=answer;
+							} else {
+								chunk+=answer;
+								cache_text=answer;
 							}
                         	// var markdown_block = text.blocks[-1].markdown_block;
 							// if (markdown_block){
