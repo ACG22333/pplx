@@ -16,8 +16,7 @@ PPLX-Proxy 改进版
    - 增加了搜索资料的 markdown 格式展示
    - 思路来源：[snaily](https://linux.do/u/snaily/summary)
 
-4. 容器化部署增加可靠性
-   - 使用 pm2 实现自动重载，提升服务可靠性
+
 
 ## 作者信息
 - 我的主页：[coker](https://linux.do/u/coker/summary)
