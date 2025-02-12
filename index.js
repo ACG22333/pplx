@@ -166,13 +166,13 @@ app.post("/v1/messages", (req, res) => {
 
 				// proxy response
                 var socket = io("wss://www.perplexity.ai/", opts);
-
+				let cache_text="";
                 socket.on("connect", function () {
 					let ask_json={"version":"2.18",
 						"source":"default",
 						"attachments":[],
 						"language":"en-US",
-						"timezone":"America/Los_Angeles",
+						"timezone":"Asia/Shanghai",
 						"search_focus":"writing",
 						"sources":[],
 						"search_recency_filter":null,
@@ -258,18 +258,24 @@ app.post("/v1/messages", (req, res) => {
                     if(data.text){
                         var text = JSON.parse(data.text)
 						try{
-                        	var markdown_block = text.blocks[-1].markdown_block;
-							if (markdown_block){
-								chunk+=markdown_block.chunks[-1];
-							} 
-							var reasoning_plan_block=text.blocks[-1].reasoning_plan_block;
-							if (reasoning_plan_block){
-								chunk+=reasoning_plan_block.chunks[-1].goals[0].description;
-								if (reasoning_plan_block.chunks[-1].goals.length>1){
-									is_thinking=false;
-									chunk+="</think>"
-								}
+							answer=text.answer;
+							if (cache_text){
+								let new_text=answer.slice(cache_text.length);
+								chunk+=new_text;
+								cache_text=answer;
 							}
+                        	// var markdown_block = text.blocks[-1].markdown_block;
+							// if (markdown_block){
+							// 	chunk+=markdown_block.chunks[-1];
+							// } 
+							// var reasoning_plan_block=text.blocks[-1].reasoning_plan_block;
+							// if (reasoning_plan_block){
+							// 	chunk+=reasoning_plan_block.chunks[-1].goals[0].description;
+							// 	if (reasoning_plan_block.chunks[-1].goals.length>1){
+							// 		is_thinking=false;
+							// 		chunk+="</think>"
+							// 	}
+							// }
 						}catch(e){
 							console.log(e);
 							console.log(text);
