@@ -268,7 +268,7 @@ app.post("/v1/messages", (req, res) => {
 						try{
 							if (text && text[text.length - 1].step_type=="FINAL"){
 								if (is_thinking){
-									chunk+="\n</think>"
+									chunk+="\n</think>\n";
 									is_thinking=false;
 								}
 								answer=JSON.parse(text[text.length - 1].content.answer).answer;
@@ -312,7 +312,7 @@ app.post("/v1/messages", (req, res) => {
 									catche_think=goals[catche_num].description;
 								}
 								catche_num=goals_num;
-								catche_think="\n"+goals[goals_num].description;
+								catche_think="\n\n"+goals[goals_num].description;
 								chunk+=catche_think;
 							}
 							if (chunk){
