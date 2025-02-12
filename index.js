@@ -103,11 +103,12 @@ app.post("/v1/messages", (req, res) => {
 				let model=jsonBody.model;
 				let open_serch=false;
 				let is_thinking=false;
+				let is_thinking_model=false;
 				if (model.includes("search")) {
 					open_serch=true;
 				}
 				if (model.includes("deepseek-r1")) {
-					is_thinking=true;
+					is_thinking_model=true;
 				}
 				if (jsonBody.system) {
 					jsonBody.messages.unshift({ role: "system", content: jsonBody.system });
@@ -195,7 +196,7 @@ app.post("/v1/messages", (req, res) => {
 						ask_json["sources"]=["web"];
 						ask_json["search_focus"]="internet";
 					}
-					if (is_thinking){
+					if (is_thinking_model){
 						ask_json["model_preference"]="r1"
 					}
 					
@@ -248,24 +249,30 @@ app.post("/v1/messages", (req, res) => {
                     console.log(`> [got ${event}]`);
                 });
                 socket.on("query_progress", (data) => {
-					console.log(data);
+					console.dir(data, {depth: null});
 
 					let chunk="";
-					if (is_thinking){
+					if (is_thinking_model){
 						chunk+="<think>"
-						is_thinking=false;
+						is_thinking=true;
 					}
                     if(data.text){
                         var text = JSON.parse(data.text)
 						try{
-							answer=text.answer;
-							if (cache_text){
-								let new_text=answer.slice(cache_text.length);
-								chunk+=new_text;
-								cache_text=answer;
-							} else {
-								chunk+=answer;
-								cache_text=answer;
+							if (text[-1].step_type=="final"){
+								if (is_thinking){
+									chunk+="</think>"
+									is_thinking=false;
+								}
+								answer=text.content.answer.answer;
+								if (cache_text){
+									let new_text=answer.slice(cache_text.length);
+									chunk+=new_text;
+									cache_text=answer;
+								} else {
+									chunk+=answer;
+									cache_text=answer;
+								}
 							}
                         	// var markdown_block = text.blocks[-1].markdown_block;
 							// if (markdown_block){
