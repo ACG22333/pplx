@@ -76,6 +76,7 @@ app.post("/v1/messages", (req, res) => {
 		res.setHeader("Content-Type", "text/event-stream;charset=utf-8");
 		try {
 			let jsonBody = JSON.parse(req.rawBody);
+			console.dir(jsonBody, {depth: null});
 			if (jsonBody.stream == false) {
 				res.send(
 					JSON.stringify({
