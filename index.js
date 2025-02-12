@@ -293,6 +293,7 @@ app.post("/v1/messages", (req, res) => {
 					if (is_thinking && data.reasoning_plan && data.reasoning_plan.goals && data.reasoning_plan.goals.length > 1){
 						let chunk="";
 						let goals_num=data.reasoning_plan.goals.length-1;
+						let goals=data.reasoning_plan.goals;
 						if (goals_num==catche_num){
 							if (catche_think!=goals[goals_num].description){
 								chunk+=goals[goals_num].description.slice(catche_think.length);
