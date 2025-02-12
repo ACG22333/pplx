@@ -202,6 +202,7 @@ app.post("/v1/messages", (req, res) => {
 						ask_json["model_preference"]="r1"
 					}
 					if (is_thinking_model && !is_thinking){
+						is_thinking=true;
 						let chunk="<think>\n";
 						chunkJSON = JSON.stringify({
 							type: "content_block_delta",
