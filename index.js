@@ -255,6 +255,7 @@ app.post("/v1/messages", (req, res) => {
 					}
                     if(data.text){
                         var text = JSON.parse(data.text)
+			    console.log(text);
 						try{
                         	var markdown_block = text.blocks[-1].markdown_block;
 							if (markdown_block){
