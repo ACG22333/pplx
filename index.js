@@ -248,6 +248,8 @@ app.post("/v1/messages", (req, res) => {
                     console.log(`> [got ${event}]`);
                 });
                 socket.on("query_progress", (data) => {
+					console.log(data);
+					
 					let chunk="";
 					if (is_thinking){
 						chunk+="<think>"
@@ -255,7 +257,6 @@ app.post("/v1/messages", (req, res) => {
 					}
                     if(data.text){
                         var text = JSON.parse(data.text)
-			    console.log(text);
 						try{
                         	var markdown_block = text.blocks[-1].markdown_block;
 							if (markdown_block){
