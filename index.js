@@ -266,7 +266,7 @@ app.post("/v1/messages", (req, res) => {
 									chunk+="</think>"
 									is_thinking=false;
 								}
-								answer=text[-1].content.answer.answer;
+								answer=text[text.length - 1].content.answer.answer;
 								if (cache_text){
 									let new_text=answer.slice(cache_text.length);
 									chunk+=new_text;
