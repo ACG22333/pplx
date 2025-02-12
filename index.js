@@ -116,38 +116,44 @@ app.post("/v1/messages", (req, res) => {
 				if (jsonBody.system) {
 					jsonBody.messages.unshift({ role: "system", content: jsonBody.system });
 				}
-                let previousMessages = jsonBody.messages
-                    .map((msg) => {
-						if (msg.role == "assistant" && msg.content.includes("-------------------------------------")) {
-							// 分割内容,只保留分隔符之前的部分
-							try{
-								return "\n"+msg.role+":"+msg.content.split("-------------------------------------")[0];
-							}
-							catch(e){
-								console.log(e);
-								return msg.content
-							}
-						}
-						if (typeof msg.content === "string") {
-							return "\n"+msg.role+":"+msg.content;
-						}
-						if (typeof msg.content === "object") {
-							//遍历，且检查是否有text属性
-							if (msg.content.length > 0) {
-								let text = "";
-								msg.content.forEach((item) => {
-									if (item.text) {
-										text += item.text;
-									}
+				let previousMessages = "";
+				if (jsonBody.messages){
+					let previousMessages = jsonBody.messages
+						.map((msg) => {
+							if (msg.role == "assistant" && msg.content.includes("-------------------------------------")) {
+								// 分割内容,只保留分隔符之前的部分
+								try{
+									return "\n"+msg.role+":"+msg.content.split("-------------------------------------")[0];
 								}
-							);
-							return "\n"+msg.role+":"+text;
+								catch(e){
+									console.log(e);
+									return msg.content
+								}
 							}
-						}
-                        return "\n"+msg.role+":"+"";
-                    })
-                    .join("\n\n");
-				console.log(previousMessages);
+							if (typeof msg.content === "string") {
+								return "\n"+msg.role+":"+msg.content;
+							}
+							if (typeof msg.content === "object") {
+								//遍历，且检查是否有text属性
+								if (msg.content.length > 0) {
+									let text = "";
+									msg.content.forEach((item) => {
+										if (item.text) {
+											text += item.text;
+										}
+									}
+								);
+								return "\n"+msg.role+":"+text;
+								}
+							}
+							return "\n"+msg.role+":"+"";
+						})
+						.join("\n\n");
+					console.log(previousMessages);
+				}
+				if (jsonBody.prompt && typeof jsonBody.prompt === "string") {
+					previousMessages += "\n\n"+jsonBody.prompt;
+				}
                 let msgid = uuidv4();
 				// send message start
 				res.write(
