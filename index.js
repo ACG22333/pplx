@@ -117,7 +117,7 @@ app.post("/v1/messages", (req, res) => {
 					jsonBody.messages.unshift({ role: "system", content: jsonBody.system });
 				}
 				let previousMessages = "";
-				if (jsonBody.messages){
+				// if (jsonBody.messages){
 					previousMessages = jsonBody.messages
 						.map((msg) => {
 							if (msg.role == "assistant" && msg.content.includes("-------------------------------------")) {
@@ -150,10 +150,10 @@ app.post("/v1/messages", (req, res) => {
 						})
 						.join("\n\n");
 					console.log(previousMessages);
-				}
-				if (jsonBody.prompt && typeof jsonBody.prompt === "string") {
-					previousMessages += "\n\n"+jsonBody.prompt;
-				}
+				// }
+				// if (jsonBody.prompt && typeof jsonBody.prompt === "string") {
+				// 	previousMessages += "\n\n"+jsonBody.prompt;
+				// }
                 let msgid = uuidv4();
 				// send message start
 				res.write(
