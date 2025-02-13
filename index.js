@@ -118,7 +118,7 @@ app.post("/v1/messages", (req, res) => {
 				}
 				let previousMessages = "";
 				if (jsonBody.messages){
-					let previousMessages = jsonBody.messages
+					previousMessages = jsonBody.messages
 						.map((msg) => {
 							if (msg.role == "assistant" && msg.content.includes("-------------------------------------")) {
 								// 分割内容,只保留分隔符之前的部分
